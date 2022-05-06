@@ -9,6 +9,16 @@ class Task
         @done = attributes[:done] || false
     end
 
+    def save 
+        if @id.nil?
+            DB.execute("INSERT INTO tasks (title, description, done) VALUES(?,?,?)", @title, @description, @done ? 1:0)
+            @id = DB.last_insert_row_id
+        else 
+            DB.execute("UPDATE tasks SET done= ? WHERE id = ?", 
+                @done ? 1:0, @id)
+        end
+    end 
+
     def self.find(id)
         result = DB.execute("SELECT * FROM tasks WHERE id = ?", id).first
         result.nil? ? nil : build_task_object(result)
